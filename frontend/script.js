@@ -21,7 +21,7 @@ const CONFIG = {
   // true  = use SAMPLE_JOBS below (Stage 1)
   // false = call the Spring Boot API at API_BASE_URL (later stages)
   USE_SAMPLE_DATA: false,
-  API_BASE_URL: "http://localhost:8080/api",
+  API_BASE_URL: "https://fresherradar-backend.onrender.com/api",
   PAGE_SIZE: 12,              // how many cards to show per "Show more"
   SIMULATED_DELAY_MS: 800,    // fake network delay so the loading skeletons are visible
 };
