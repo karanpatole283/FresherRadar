@@ -1,0 +1,28 @@
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Java / Maven
+**/target/
+*.class
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+application-local.properties
+application-prod.properties
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Local test and backup files
+backend/gemini-test.json
+backend/startup-error.txt
+*.bak
