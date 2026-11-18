@@ -1,0 +1,11 @@
+FresherRadar frontend visual refresh
+====================================
+
+Included: index.html, style.css, script.js, README.md
+
+Only the visual stylesheet was updated. script.js is preserved byte-for-byte.
+The Spring Boot backend, API endpoints, database, environment variables, and
+classification/collection functionality were not changed.
+
+Deployment: replace the existing frontend static-site files with these files.
+Keep the existing backend service and its configuration untouched.
