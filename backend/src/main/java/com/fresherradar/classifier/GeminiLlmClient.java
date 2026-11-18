@@ -1,4 +1,3 @@
-
 package com.fresherradar.classifier;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -6,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fresherradar.exception.LlmException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -16,6 +16,11 @@ import java.net.http.HttpTimeoutException;
 import java.time.Duration;
 
 @Component
+@ConditionalOnProperty(
+        name = "fresherradar.llm.provider",
+        havingValue = "gemini",
+        matchIfMissing = true
+)
 public class GeminiLlmClient implements LlmClient {
 
     private static final int MAX_ATTEMPTS = 2;
