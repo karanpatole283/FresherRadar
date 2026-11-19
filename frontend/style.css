@@ -739,3 +739,118 @@ body { background: radial-gradient(ellipse at 82% 0%, rgba(112,111,238,.075), tr
 @media (prefers-reduced-motion: reduce) {
   .stat-card:hover, .job-card:hover, .company-card:hover, .about-card:hover { transform: none; }
 }
+
+
+/* ---------- 12. Professional horizontal job-list layout ---------- */
+.job-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.job-card:not(.skeleton-card) {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.15fr) minmax(220px, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "identity meta action"
+    "identity tags action"
+    "identity skills action";
+  align-items: center;
+  column-gap: 24px;
+  row-gap: 8px;
+  min-width: 0;
+  padding: 18px 20px;
+}
+
+.job-card:not(.skeleton-card) .job-card-top {
+  grid-area: identity;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.job-card:not(.skeleton-card) .job-meta {
+  grid-area: meta;
+  min-width: 0;
+  gap: 5px 14px;
+}
+
+.job-card:not(.skeleton-card) .chips {
+  grid-area: tags;
+  min-width: 0;
+}
+
+.job-card:not(.skeleton-card) .skill-row {
+  grid-area: skills;
+  min-width: 0;
+}
+
+.job-card:not(.skeleton-card) .job-card-bottom {
+  grid-area: action;
+  align-self: stretch;
+  min-width: 112px;
+  margin: 0;
+  padding: 0 0 0 20px;
+  border-top: 0;
+  border-left: 1px solid var(--border);
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.job-card:not(.skeleton-card) .job-foot-meta {
+  text-align: right;
+  line-height: 1.45;
+}
+
+.job-card:not(.skeleton-card) .job-card-bottom .btn {
+  min-width: 104px;
+  justify-content: center;
+}
+
+.job-card:not(.skeleton-card) .job-title {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .job-card:not(.skeleton-card) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "identity identity"
+      "meta meta"
+      "tags tags"
+      "skills skills"
+      "action action";
+    column-gap: 12px;
+    row-gap: 10px;
+    padding: 16px;
+  }
+
+  .job-card:not(.skeleton-card) .job-card-bottom {
+    min-width: 0;
+    align-self: auto;
+    margin-top: 2px;
+    padding: 12px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .job-card:not(.skeleton-card) .job-foot-meta {
+    text-align: left;
+  }
+}
+
+@media (max-width: 420px) {
+  .job-card:not(.skeleton-card) {
+    padding: 14px;
+  }
+
+  .job-card:not(.skeleton-card) .job-meta {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
