@@ -751,3 +751,19 @@ body { background: radial-gradient(ellipse at 82% 0%, rgba(112,111,238,.075), tr
   align-self: stretch;
   height: 100%;
 }
+
+
+/* ---------- Apply button alignment fix ---------- */
+.job-card-bottom {
+  margin-top: auto;
+  align-items: center;
+}
+
+.job-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.job-grid {
+  grid-auto-rows: 1fr;
+}
