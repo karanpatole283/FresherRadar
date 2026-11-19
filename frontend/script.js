@@ -333,7 +333,7 @@ function companyInitial(companyName) {
    --------------------------------------------------------- */
 let allJobs = [];
 let visibleCount = CONFIG.PAGE_SIZE;
-let visibleCompanyRows = 4;
+let visibleCompanyRows = 3;
 let lastFocusedElement = null;
 let drawerJobIds = [];   // ids of the jobs the drawer can step through (Previous / Next)
 let drawerIndex = 0;
@@ -403,6 +403,10 @@ function getFilteredJobs() {
   });
 
   matches.sort((a, b) => {
+    const aIsOther = /^others?$/i.test(String(a.category || "").trim());
+    const bIsOther = /^others?$/i.test(String(b.category || "").trim());
+    if (aIsOther !== bIsOther) return aIsOther ? 1 : -1;
+
     const difference = new Date(b.postedAt) - new Date(a.postedAt);
     return filters.sortBy === "newest" ? difference : -difference;
   });
@@ -697,7 +701,7 @@ function renderCompanies() {
   }
 
   const sorted = [...companies.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-  const pageSize = getCompanyColumns() * 4;
+  const pageSize = getCompanyColumns() * 3;
   el.companyGrid.dataset.totalCompanies = String(sorted.length);
   const visibleCompanies = sorted.slice(0, pageSize * visibleCompanyRows);
 
@@ -719,7 +723,7 @@ function renderCompanies() {
     const showingAll = visibleCompanies.length >= sorted.length;
     el.companyMoreBtn.textContent = showingAll ? "Show less" : "See more companies";
     el.companyMoreBtn.dataset.showingAll = String(showingAll);
-    el.companyMoreBtn.setAttribute("aria-expanded", String(visibleCompanyRows > 4));
+    el.companyMoreBtn.setAttribute("aria-expanded", String(visibleCompanyRows > 3));
   }
 }
 
@@ -1025,9 +1029,9 @@ function bindEvents() {
   });
 
   el.companyMoreBtn.addEventListener("click", () => {
-    const pageSize = getCompanyColumns() * 4;
+    const pageSize = getCompanyColumns() * 3;
     const currentlyShowingAll = el.companyMoreBtn.dataset.showingAll === "true";
-    visibleCompanyRows = currentlyShowingAll ? 4 : visibleCompanyRows + 4;
+    visibleCompanyRows = currentlyShowingAll ? 3 : visibleCompanyRows + 3;
     renderCompanies();
     if (currentlyShowingAll) {
       document.getElementById("companies").scrollIntoView({ behavior: "smooth", block: "start" });
