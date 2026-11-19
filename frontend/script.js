@@ -333,6 +333,7 @@ function companyInitial(companyName) {
    --------------------------------------------------------- */
 let allJobs = [];
 let visibleCount = CONFIG.PAGE_SIZE;
+let visibleCompanyRows = 4;
 let lastFocusedElement = null;
 let drawerJobIds = [];   // ids of the jobs the drawer can step through (Previous / Next)
 let drawerIndex = 0;
@@ -363,7 +364,7 @@ const el = {
   loadMoreWrap: $("loadMoreWrap"), loadMoreBtn: $("loadMoreBtn"),
   emptyState: $("emptyState"), emptyResetBtn: $("emptyResetBtn"),
   errorState: $("errorState"), errorMessage: $("errorMessage"), retryBtn: $("retryBtn"),
-  companyGrid: $("companyGrid"),
+  companyGrid: $("companyGrid"), companyMoreWrap: $("companyMoreWrap"), companyMoreBtn: $("companyMoreBtn"),
   // sidebar + top bar
   sidebarOverlay: $("sidebarOverlay"), sidebarSync: $("sidebarSync"), quickViews: $("quickViews"),
   navJobsCount: $("navJobsCount"), navCompaniesCount: $("navCompaniesCount"),
@@ -536,7 +537,7 @@ function createJobCardHtml(job, index) {
   const moreSkills = skills.length > 3 ? `<span class="skill-tag skill-more">+${skills.length - 3}</span>` : "";
 
   return `
-    <article class="job-card${isNew ? " is-new" : ""}" data-id="${escapeHtml(job.id)}" style="animation-delay:${animationDelay}ms">
+    <article class="job-card${isNew ? " is-new" : ""}${skills.length ? " has-skills" : " no-skills"}" data-id="${escapeHtml(job.id)}" style="animation-delay:${animationDelay}ms">
       <div class="job-card-top">
         <div class="avatar" style="${avatarStyle(job.company)}" aria-hidden="true">${companyInitial(job.company)}</div>
         <div class="job-heading">
@@ -680,6 +681,11 @@ function renderFilterOptions() {
   fillSelect(el.filterCategory, uniqueSorted(allJobs.map((job) => job.category)));
 }
 
+function getCompanyColumns() {
+  const template = window.getComputedStyle(el.companyGrid).gridTemplateColumns;
+  return Math.max(1, template.split(/\s+/).filter(Boolean).length);
+}
+
 function renderCompanies() {
   // Group jobs by company name (like GROUP BY company in SQL).
   const companies = new Map();
@@ -691,7 +697,11 @@ function renderCompanies() {
   }
 
   const sorted = [...companies.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-  el.companyGrid.innerHTML = sorted.map((company) => `
+  const pageSize = getCompanyColumns() * 4;
+  el.companyGrid.dataset.totalCompanies = String(sorted.length);
+  const visibleCompanies = sorted.slice(0, pageSize * visibleCompanyRows);
+
+  el.companyGrid.innerHTML = visibleCompanies.map((company) => `
     <button type="button" class="company-card" data-company="${escapeHtml(company.name)}">
       <div class="company-top">
         <div class="avatar" style="${avatarStyle(company.name)}" aria-hidden="true">${companyInitial(company.name)}</div>
@@ -702,6 +712,15 @@ function renderCompanies() {
         <div class="company-meta">${[...company.cities].map(escapeHtml).join(", ")}</div>
       </div>
     </button>`).join("");
+
+  const hasMore = sorted.length > pageSize;
+  el.companyMoreWrap.hidden = !hasMore;
+  if (hasMore) {
+    const showingAll = visibleCompanies.length >= sorted.length;
+    el.companyMoreBtn.textContent = showingAll ? "Show less" : "See more companies";
+    el.companyMoreBtn.dataset.showingAll = String(showingAll);
+    el.companyMoreBtn.setAttribute("aria-expanded", String(visibleCompanyRows > 4));
+  }
 }
 
 function renderLastUpdated(isoDate) {
@@ -749,7 +768,10 @@ function renderInsightSkeletons() {
 }
 
 function renderInsights() {
-  el.insightRoles.innerHTML = createBarListHtml(countBy(allJobs, (job) => job.category).slice(0, 8), "category");
+  const topRoles = countBy(allJobs, (job) => job.category)
+    .filter(([label]) => !/^others?$/i.test(String(label).trim()))
+    .slice(0, 8);
+  el.insightRoles.innerHTML = createBarListHtml(topRoles, "category");
   el.insightCities.innerHTML = createBarListHtml(countBy(allJobs, (job) => job.location).slice(0, 8), "location");
 
   const fullTimeCount = allJobs.filter((job) => job.employmentType === "Full-time").length;
@@ -1001,6 +1023,18 @@ function bindEvents() {
     refreshJobList();
     scrollToJobs();
   });
+
+  el.companyMoreBtn.addEventListener("click", () => {
+    const pageSize = getCompanyColumns() * 4;
+    const currentlyShowingAll = el.companyMoreBtn.dataset.showingAll === "true";
+    visibleCompanyRows = currentlyShowingAll ? 4 : visibleCompanyRows + 4;
+    renderCompanies();
+    if (currentlyShowingAll) {
+      document.getElementById("companies").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  window.addEventListener("resize", debounce(() => renderCompanies(), 160));
 
   // Dashboard panels: bars and legend filter the list, "latest" rows open details.
   el.insights.addEventListener("click", (event) => {
