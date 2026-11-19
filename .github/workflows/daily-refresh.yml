@@ -1,0 +1,43 @@
+﻿name: Daily FresherRadar Refresh
+
+on:
+  schedule:
+    - cron: "45 20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  daily-refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Trigger backend refresh
+        env:
+          BACKEND_URL: https://fresherradar-backend.onrender.com
+          ADMIN_TOKEN: ${{ secrets.FRESHERRADAR_ADMIN_TOKEN }}
+        run: |
+          if [ -z "$ADMIN_TOKEN" ]; then
+            echo "Missing FRESHERRADAR_ADMIN_TOKEN secret"
+            exit 1
+          fi
+
+          status=$(curl -sS \
+            --connect-timeout 30 \
+            --max-time 300 \
+            -o response.txt \
+            -w "%{http_code}" \
+            -X POST "$BACKEND_URL/api/admin/refresh" \
+            -H "X-Admin-Token: $ADMIN_TOKEN")
+
+          cat response.txt
+          echo "HTTP status: $status"
+
+          if [ "$status" = "202" ] || [ "$status" = "409" ]; then
+            echo "Refresh accepted or already running."
+          else
+            echo "Refresh request failed."
+            exit 1
+          fi
