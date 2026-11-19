@@ -402,15 +402,20 @@ function getFilteredJobs() {
     return true;
   });
 
-  matches.sort((a, b) => {
-    const aIsOther = /^others?$/i.test(String(a.category || "").trim());
-    const bIsOther = /^others?$/i.test(String(b.category || "").trim());
-    if (aIsOther !== bIsOther) return aIsOther ? 1 : -1;
+  const isOtherJob = (job) =>
+    /^others?(?:\b|[\s/(-])/i.test(String(job.category || "").trim());
 
-    const difference = new Date(b.postedAt) - new Date(a.postedAt);
+  const compareByDate = (a, b) => {
+    const aDate = Date.parse(a.postedAt) || 0;
+    const bDate = Date.parse(b.postedAt) || 0;
+    const difference = bDate - aDate;
     return filters.sortBy === "newest" ? difference : -difference;
-  });
-  return matches;
+  };
+
+  // Sort each group by the selected date order, then append Other/Others last.
+  const regularJobs = matches.filter((job) => !isOtherJob(job)).sort(compareByDate);
+  const otherJobs = matches.filter(isOtherJob).sort(compareByDate);
+  return [...regularJobs, ...otherJobs];
 }
 
 function hasActiveFilters() {
@@ -682,7 +687,11 @@ function renderFilterOptions() {
   el.filterLocation.length = 1;
   el.filterCategory.length = 1;
   fillSelect(el.filterLocation, uniqueSorted(allJobs.map((job) => job.location)));
-  fillSelect(el.filterCategory, uniqueSorted(allJobs.map((job) => job.category)));
+  // Keep Other/Others jobs in Browse Jobs, but omit their standalone role filter option.
+  fillSelect(
+    el.filterCategory,
+    uniqueSorted(allJobs.map((job) => job.category).filter((category) => !/^others?(?:\b|$)/i.test(String(category || "").trim())))
+  );
 }
 
 function getCompanyColumns() {
@@ -701,7 +710,7 @@ function renderCompanies() {
   }
 
   const sorted = [...companies.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-  const pageSize = getCompanyColumns() * 3;
+  const pageSize = getCompanyColumns();
   el.companyGrid.dataset.totalCompanies = String(sorted.length);
   const visibleCompanies = sorted.slice(0, pageSize * visibleCompanyRows);
 
@@ -717,7 +726,7 @@ function renderCompanies() {
       </div>
     </button>`).join("");
 
-  const hasMore = sorted.length > pageSize;
+  const hasMore = sorted.length > pageSize * 3;
   el.companyMoreWrap.hidden = !hasMore;
   if (hasMore) {
     const showingAll = visibleCompanies.length >= sorted.length;
@@ -1029,7 +1038,6 @@ function bindEvents() {
   });
 
   el.companyMoreBtn.addEventListener("click", () => {
-    const pageSize = getCompanyColumns() * 3;
     const currentlyShowingAll = el.companyMoreBtn.dataset.showingAll === "true";
     visibleCompanyRows = currentlyShowingAll ? 3 : visibleCompanyRows + 3;
     renderCompanies();
