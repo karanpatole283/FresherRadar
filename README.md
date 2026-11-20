@@ -3,12 +3,12 @@
 
 **AI-Powered Job Discovery & Classification Platform for Freshers**
 
-FresherRadar is a job discovery platform designed to help fresh graduates and early-career professionals find relevant entry-level opportunities. It collects job listings, classifies them using Google's Gemini AI, and presents structured job information through a simple web interface.
+FresherRadar is a job discovery platform designed to help fresh graduates and early-career professionals find relevant entry-level opportunities. It collects job listings, classifies them using Grok AI, and presents structured job information through a simple web interface.
 
 ## 🚀 Features
 
 - **Automated Job Collection** – Collects job listings from supported sources.
-- **AI-Powered Classification** – Uses Google Gemini to classify job opportunities.
+- **AI-Powered Classification** – Uses Grok AI to classify job opportunities.
 - **Fresher-Focused Discovery** – Helps identify entry-level and early-career roles.
 - **Job Filtering** – Explore jobs based on available categories and information.
 - **REST API** – Spring Boot backend exposes endpoints for job data and system health.
@@ -24,7 +24,7 @@ FresherRadar is a job discovery platform designed to help fresh graduates and ea
 | Build Tool | Apache Maven |
 | Frontend | HTML, CSS, JavaScript |
 | Database | PostgreSQL (Neon) |
-| AI Integration | Google Gemini API |
+| AI Integration | Grok API |
 | Database Migrations | Flyway |
 | Deployment | Render |
 | Version Control | Git & GitHub |
